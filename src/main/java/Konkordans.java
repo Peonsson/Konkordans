@@ -1,3 +1,4 @@
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -23,30 +24,36 @@ public class Konkordans {
         long position = 0;
         Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
         String[] strings;
-
+        StringBuilder sb = new StringBuilder();
+        char character;
         double start = System.currentTimeMillis();
         while(line != null) {
 
             try {
                 position = randomAccessFile.getFilePointer();
-                if((line = randomAccessFile.readLine()) == null)
-                    break;
+                sb.setLength(0);
 
-                strings = line.split(" ");
-                word = strings[0];
+                for (int i = 0; i < 3; i++) {
+                    if((character = randomAccessFile.readChar()) != ' ') {
+                        sb.append(character);
+                    } else {
+                        break;
+                    }
+                }
 
-                if (word.length() > 3)
-                    word = word.substring(0, 3);
+                while((randomAccessFile.readChar()) != '\n') { }
 
-                if(word.equals(prev))
+                if(sb.toString().equals(prev))
                     continue;
 
+            } catch (EOFException e) {
+              break;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            prev = word;
+            prev = sb.toString();
             numbers.put(word, position);
         }
         double finish = System.currentTimeMillis();
