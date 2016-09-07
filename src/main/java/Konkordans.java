@@ -9,8 +9,6 @@ import java.util.Hashtable;
 public class Konkordans {
 
     public static void main(String[] args) {
-        String[] strblet = {"a", "b", "c", "d", "e,", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
-                "t", "u", "v", "w", "x", "y", "z", "å", "ä", "ö", " "};
 
         RandomAccessFile randomAccessFile = null;
         try {
@@ -18,15 +16,18 @@ public class Konkordans {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        
-        String word = "hej";
 
-        while(word != null) {
-            String position = null;
+        String word = "hej";
+        String line = "init";
+        String prev = null;
+        String position = null;
+        int i = 0;
+        Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
+
+        while(line != null && i < 15) {
 
             try {
-                String line = randomAccessFile.readLine();
-                if (line == null)
+                if((line = randomAccessFile.readLine()) == null)
                     break;
 
                 String[] strings = line.split(" ");
@@ -36,14 +37,20 @@ public class Konkordans {
                 if (word.length() > 3)
                     word = word.substring(0, 2);
 
+                if(word.equals(prev))
+                    continue;
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            prev = word;
 
-            Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
             numbers.put(word, Long.parseLong(position));
+            i++;
         }
+        System.out.println(numbers.toString());
+        System.out.println("numbers size: " + numbers.size());
     }
 }
