@@ -20,19 +20,20 @@ public class Konkordans {
         String word = "hej";
         String line = "init";
         String prev = null;
-        String position = null;
+        long position = 0;
         Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
         String[] strings;
 
-        while(line != null && numbers.size() < 10) {
+        double start = System.currentTimeMillis();
+        while(line != null) {
 
             try {
+                position = randomAccessFile.getFilePointer();
                 if((line = randomAccessFile.readLine()) == null)
                     break;
 
                 strings = line.split(" ");
                 word = strings[0];
-                position = strings[1];
 
                 if (word.length() > 3)
                     word = word.substring(0, 3);
@@ -46,10 +47,11 @@ public class Konkordans {
                 e.printStackTrace();
             }
             prev = word;
-
-            numbers.put(word, Long.parseLong(position));
+            numbers.put(word, position);
         }
-        System.out.println(numbers.toString());
+        double finish = System.currentTimeMillis();
+        System.out.println("time to execute: " + (finish - start) / 1000);
         System.out.println("numbers size: " + numbers.size());
+        System.out.println("numbers get a: " + numbers.get("a"));
     }
 }
