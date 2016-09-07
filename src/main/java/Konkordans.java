@@ -9,7 +9,8 @@ public class Konkordans {
 
         RandomAccessFile randomAccessFile = null;
         try {
-            randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
+            //randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
+            randomAccessFile = new RandomAccessFile("C:\\index", "r");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -18,10 +19,10 @@ public class Konkordans {
         String line = "init";
         String prev = null;
         long position = 0;
-        Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
+        Hashtable<String, Long> numbers = new Hashtable<>(30 * 30 * 30);
         String[] strings;
-
         double start = System.currentTimeMillis();
+
         while(line != null) {
 
             try {
@@ -47,7 +48,7 @@ public class Konkordans {
 
             numbers.put(word, position);
         }
-        System.out.println(numbers.toString());
+        //System.out.println(numbers.toString());
         System.out.println("numbers size: " + numbers.size());
         System.out.println((System.currentTimeMillis() - start) / 1000);
     }
