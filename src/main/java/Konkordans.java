@@ -1,12 +1,8 @@
-import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Hashtable;
 
-/**
- * Created by Peonsson on 06/09/16.
- */
 public class Konkordans {
 
     public static void main(String[] args) {
@@ -24,41 +20,35 @@ public class Konkordans {
         long position = 0;
         Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
         String[] strings;
-        StringBuilder sb = new StringBuilder();
-        char character;
+
         double start = System.currentTimeMillis();
         while(line != null) {
 
             try {
                 position = randomAccessFile.getFilePointer();
-                sb.setLength(0);
+                if((line = randomAccessFile.readLine()) == null)
+                    break;
 
-                for (int i = 0; i < 3; i++) {
-                    if((character = randomAccessFile.readChar()) != ' ') {
-                        sb.append(character);
-                    } else {
-                        break;
-                    }
-                }
+                strings = line.split(" ");
+                word = strings[0];
 
-                while((randomAccessFile.readChar()) != '\n') { }
+                if (word.length() > 3)
+                    word = word.substring(0, 3);
 
-                if(sb.toString().equals(prev))
+                if(word.equals(prev))
                     continue;
 
-            } catch (EOFException e) {
-              break;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            prev = sb.toString();
+            prev = word;
+
             numbers.put(word, position);
         }
-        double finish = System.currentTimeMillis();
-        System.out.println("time to execute: " + (finish - start) / 1000);
+        System.out.println(numbers.toString());
         System.out.println("numbers size: " + numbers.size());
-        System.out.println("numbers get a: " + numbers.get("a"));
+        System.out.println((System.currentTimeMillis() - start) / 1000);
     }
 }
