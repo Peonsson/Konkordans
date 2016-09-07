@@ -21,21 +21,21 @@ public class Konkordans {
         String line = "init";
         String prev = null;
         String position = null;
-        int i = 0;
         Hashtable<String, Long> numbers = new Hashtable<String, Long>(30 * 30 * 30);
+        String[] strings;
 
-        while(line != null && i < 15) {
+        while(line != null && numbers.size() < 10) {
 
             try {
                 if((line = randomAccessFile.readLine()) == null)
                     break;
 
-                String[] strings = line.split(" ");
+                strings = line.split(" ");
                 word = strings[0];
                 position = strings[1];
 
                 if (word.length() > 3)
-                    word = word.substring(0, 2);
+                    word = word.substring(0, 3);
 
                 if(word.equals(prev))
                     continue;
@@ -48,7 +48,6 @@ public class Konkordans {
             prev = word;
 
             numbers.put(word, Long.parseLong(position));
-            i++;
         }
         System.out.println(numbers.toString());
         System.out.println("numbers size: " + numbers.size());
