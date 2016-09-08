@@ -1,6 +1,5 @@
 import java.io.*;
-import java.util.Hashtable;
-
+import java.util.*;
 public class Konkordans implements Serializable {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -9,60 +8,67 @@ public class Konkordans implements Serializable {
             Read hashtable from disk.
             NOTE: will fail if hashtable haven't been previously written to disk.
          */
-//        FileInputStream fileInputStream = new FileInputStream("hashtable.dat");
-//        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-//        Hashtable<String, Long> hashtableFromDisk = (Hashtable<String, Long>) objectInputStream.readObject();
-//        objectInputStream.close();
-//        fileInputStream.close();
-//        System.out.println("hashtableFromDisk size: " + hashtableFromDisk.size());
-//        System.out.println(hashtableFromDisk.toString());
+        FileInputStream fileInputStream = new FileInputStream("hashtable.dat");
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        Hashtable<String, Long> latmanhash = (Hashtable<String, Long>) objectInputStream.readObject();
+        objectInputStream.close();
+        fileInputStream.close();
 
-        //TODO: build hashtable and write to disk (method)?
-        //TODO: read hashtable from disk (method)?
         //TODO: implement the actual search logic: java Konkordans <word>
 
-        double start = System.currentTimeMillis();
-        //randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
-        RandomAccessFile randomAccessFile = new RandomAccessFile("C:\\index", "r");
+        String arg = args[0];
+        String substring = arg.substring(0,3);
+        System.out.println(substring);
+        Long position = latmanhash.get(substring);
 
-        String word;
-        String prev = null;
-        long position = 0;
-        Hashtable<String, Long> numbers = new Hashtable<>(12000);
-        StringBuffer sb = new StringBuffer();
-        String line = "init";
-        while (line != null) {
+        RandomAccessFile indexfile = new RandomAccessFile("index", "r");
 
-            position = randomAccessFile.getFilePointer();
-            if ((line = randomAccessFile.readLine()) == null)
+        indexfile.seek(position);
+        String line;
+        String[] strings = null;
+
+        Long lposition = 0l;
+        ArrayList<Long> al = new ArrayList<Long>(100);
+
+        //Getting korpus indexes
+        while((line = indexfile.readLine()) != null){
+            strings = line.split(" ");  
+            if(!strings[0].equals(arg)){
                 break;
-
-            for (int i = 0; i < 3; i++) {
-                if (line.charAt(i) == ' ')
-                    break;
-                sb.append(line.charAt(i));
             }
-            word = sb.toString();
-            sb.setLength(0);
+            al.add(Long.parseLong(strings[1]));
+        }   
 
-            if (word.equals(prev))
-                continue;
+        System.out.println("Found " + al.size() + " entries of " + arg);
 
-            prev = word;
-            numbers.put(word, position);
+        //Check if more than 25
+        if(al.size() > 25){
+            System.out.print("Found more than 25 entries. Would you like to print them in the console? (y/n): ");
+            char input;
+            Scanner s = new Scanner(System.in);
+            while(true){
+                input = s.next().charAt(0);
+                if(input == 'n'){
+                    return;
+                }else if(input == 'y'){
+                    break;
+                }
+            }
+        }
+        int bytestoread = 60 + arg.length();
+        byte[] byteholder = new byte[bytestoread];
+        RandomAccessFile korpus = new RandomAccessFile("korpus", "r");
+        for(Long l: al){
+            korpus.seek(l-30);
+
+            korpus.readFully(byteholder, 0, bytestoread);
+            for(int i = 0; i < byteholder.length; i++){
+                if(byteholder[i] == '\n'){
+                    byteholder[i] = ' ';
+                }
+            }
+            System.out.println(new String(byteholder, "ISO-8859-1"));
         }
 
-        System.out.println("numbers size: " + numbers.size());
-        System.out.println((System.currentTimeMillis() - start) / 1000);
-
-        /*
-            Write hashtable to disk.
-         */
-//        FileOutputStream fileOut = new FileOutputStream("hashtable.dat");
-//        ObjectOutputStream out = new ObjectOutputStream(fileOut);
-//        out.writeObject(numbers);
-//        out.close();
-//        fileOut.close();
-//        System.out.printf("saved hashtable in hashtable.dat");
     }
 }
