@@ -17,8 +17,12 @@ public class Konkordans implements Serializable {
         //TODO: implement the actual search logic: java Konkordans <word>
 
         String arg = args[0];
-        String substring = arg.substring(0,3);
-        System.out.println(substring);
+        String substring;
+        if(arg.length() >= 3){
+            substring = arg.substring(0,3);
+        }else{
+            substring = arg;
+        }
         Long position = latmanhash.get(substring);
 
         RandomAccessFile indexfile = new RandomAccessFile("index", "r");
@@ -29,13 +33,18 @@ public class Konkordans implements Serializable {
 
         Long lposition = 0l;
         ArrayList<Long> al = new ArrayList<Long>(100);
-
+        boolean foundword = false;
         //Getting korpus indexes
         while((line = indexfile.readLine()) != null){
             strings = line.split(" ");  
             if(!strings[0].equals(arg)){
-                break;
+                if(foundword){
+                    break;
+                }else{
+                    continue;
+                }
             }
+            foundword = true;
             al.add(Long.parseLong(strings[1]));
         }   
 
