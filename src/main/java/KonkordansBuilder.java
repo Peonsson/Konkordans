@@ -17,10 +17,6 @@ public class KonkordansBuilder implements Serializable {
 //        System.out.println("hashtableFromDisk size: " + hashtableFromDisk.size());
 //        System.out.println(hashtableFromDisk.toString());
 
-        //TODO: build hashtable and write to disk (method)?
-        //TODO: read hashtable from disk (method)?
-        //TODO: implement the actual search logic: java Konkordans <word>
-
         double start = System.currentTimeMillis();
         //randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
         System.out.println("starting");
@@ -56,7 +52,6 @@ public class KonkordansBuilder implements Serializable {
         System.out.println("numbers size: " + numbers.size());
         System.out.println((System.currentTimeMillis() - start) / 1000);
         randomAccessFile.close();
-        
 
         /*
             Write hashtable to disk.
