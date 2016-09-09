@@ -5,20 +5,9 @@ public class KonkordansBuilder implements Serializable {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-        /*
-            Read hashtable from disk.
-            NOTE: will fail if hashtable haven't been previously written to disk.
-         */
-//        FileInputStream fileInputStream = new FileInputStream("hashtable.dat");
-//        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-//        Hashtable<String, Long> hashtableFromDisk = (Hashtable<String, Long>) objectInputStream.readObject();
-//        objectInputStream.close();
-//        fileInputStream.close();
-//        System.out.println("hashtableFromDisk size: " + hashtableFromDisk.size());
-//        System.out.println(hashtableFromDisk.toString());
+
 
         double start = System.currentTimeMillis();
-        //randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
         System.out.println("starting");
         RandomAccessFile randomAccessFile = new RandomAccessFile("/var/tmp/ut", "r");
 
@@ -52,6 +41,7 @@ public class KonkordansBuilder implements Serializable {
         System.out.println("numbers size: " + numbers.size());
         System.out.println((System.currentTimeMillis() - start) / 1000);
         randomAccessFile.close();
+        
 
         /*
             Write hashtable to disk.
