@@ -24,7 +24,7 @@ public class KonkordansBuilder implements Serializable {
         double start = System.currentTimeMillis();
         //randomAccessFile = new RandomAccessFile("/Users/Peonsson/WORK/tokenizer", "r");
         System.out.println("starting");
-        RandomAccessFile randomAccessFile = new RandomAccessFile("index", "r");
+        RandomAccessFile randomAccessFile = new RandomAccessFile("/var/tmp/ut", "r");
 
         String word;
         String prev = null;
