@@ -42,6 +42,7 @@ public class Konkordans implements Serializable {
         Long lposition = 0l;
         ArrayList<Long> al = new ArrayList<Long>(100);
         boolean foundword = false;
+        boolean asked = false; //asked user if it wants all entries
         //Getting korpus indexes
         while((line = indexfile.readLine()) != null){
             //aaa->aab
@@ -58,7 +59,7 @@ public class Konkordans implements Serializable {
                 al.add(Long.parseLong(strings[1]));
 
                 //Check if more than 25
-                if(al.size() > 25){
+                if(!asked && al.size() > 25){
                     System.out.print("Found more than 25 entries. Would you like to print them in the console? (y/n): ");
                     char input;
                     Scanner s = new Scanner(System.in);
@@ -67,6 +68,7 @@ public class Konkordans implements Serializable {
                         if(input == 'n'){
                             return;
                         }else if(input == 'y'){
+                            asked = true;
                             break;
                         }
                     }
