@@ -8,10 +8,19 @@ public class KonkordansBuilder implements Serializable {
         double start = System.currentTimeMillis();
         System.out.println("starting");
         RandomAccessFile randomAccessFile = new RandomAccessFile("/var/tmp/ut", "r");
+        RandomAccessFile uniqueWords = new RandomAccessFile("uniqueWords", "rw");
+        RandomAccessFile indexFile = new RandomAccessFile("indexFile", "rw");
 
-        String word;
-        String prev = null;
+        //Three word
+        String threeCharWord;
+        String prevThree = null;
         long position = 0;
+
+        //Full word
+        String fullWord = null;
+        String prevFull = null;
+        long indexposition = 0;
+
         Hashtable<String, Long> numbers = new Hashtable<>(12000);
         StringBuffer sb = new StringBuffer();
         String line = "init";
@@ -21,19 +30,59 @@ public class KonkordansBuilder implements Serializable {
             if ((line = randomAccessFile.readLine()) == null)
                 break;
 
+            //adding to new indexfile
+            String[] lineWords = line.split(" ");
+            fullWord = lineWords[0];
+            if(!fullWord.equals(prevFull)){
+                //if not the first word then cut the line when new word begins
+                //in the indexfile
+                if(prevFull!=null){
+                    indexFile.writeByte((byte) '\n');
+                }
+                //Write word in uniquewords
+                int length = fullWord.length();
+                char[] charArray = fullWord.toCharArray();
+                for(int i = 0; i < length; i++){
+                    uniqueWords.writeByte((byte) charArray[i]);
+                }
+                uniqueWords.writeByte((byte) ' ');
+
+                //Write index to indexfile in uniqueWords
+                charArray = Long.toString(indexFile.getFilePointer()).toCharArray();
+                for(int i = 0; i < charArray.length; i++){
+                    uniqueWords.writeByte((byte) charArray[i]);
+                }
+                uniqueWords.writeByte((byte) '\n');
+
+                //Write this index in indexfile
+                charArray = lineWords[1].toCharArray();
+                for(int i = 0; i < charArray.length; i++){
+                    indexFile.writeByte((byte) charArray[i]);
+                }
+            }else{
+                //Write the korpus index in indexFile
+                char[] charArray = lineWords[1].toCharArray();
+                indexFile.writeByte((byte) ' ');
+                for(int i = 0; i < charArray.length; i++){
+                    indexFile.writeByte((byte) charArray[i]);
+                }
+            }
+            prevFull = fullWord;
+
+            //Three first characters in word
             for (int i = 0; i < 3; i++) {
                 if (line.charAt(i) == ' ')
                     break;
                 sb.append(line.charAt(i));
             }
-            word = sb.toString();
+            threeCharWord = sb.toString();
             sb.setLength(0);
 
-            if (word.equals(prev))
+            if (threeCharWord.equals(prevThree))
                 continue;
 
-            prev = word;
-            numbers.put(word, position);
+            prevThree = threeCharWord;
+            numbers.put(threeCharWord, position);
         }
 
         System.out.println("numbers size: " + numbers.size());
