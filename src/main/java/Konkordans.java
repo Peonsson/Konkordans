@@ -56,49 +56,52 @@ public class Konkordans implements Serializable {
         String binpointerWord = null; //the word of line binpointer is at
         char tempchar = ' ';
         boolean foundmatch = false;
+        if(upperbound == -1){
 
-        while(upperbound != lowerbound){ //while the bounds are not the same
-            //position the cursor
-            indexfile.seek(binpointer);
-            while(indexfile.read() != '\n'){ //eats it
-                //cursor is placed one after bin pointer
-                indexfile.seek(indexfile.getFilePointer()-2); //cursor back 2 chars
-            }
-            //cursor will be on first char on line
-            binpointer = indexfile.getFilePointer();
-
-            //If the binary pointer is the same as the last it means it is stuck
-            if(prevbinpointer == binpointer){
-                String tryword = null;
-                while(indexfile.getFilePointer() < upperbound){
-                    binpointer = indexfile.getFilePointer();
-                    tryword = readTo(indexfile, ' '); //eat first word
-                    readTo(indexfile, '\n'); //eat whole line
-                    if(arg.equals(tryword)){
-                        foundmatch = true;
-                        break;
-                    }
+        }else{
+            while(upperbound != lowerbound){ //while the bounds are not the same
+                //position the cursor
+                indexfile.seek(binpointer);
+                while(indexfile.read() != '\n'){ //eats it
+                    //cursor is placed one after bin pointer
+                    indexfile.seek(indexfile.getFilePointer()-2); //cursor back 2 chars
                 }
-                break;
-            }
-            prevbinpointer = binpointer;
+                //cursor will be on first char on line
+                binpointer = indexfile.getFilePointer();
 
-            //Check the word to a space
-            binpointerWord = readTo(indexfile, ' ');
-            //if the word equals the argument
-            
-            int compare = binpointerWord.compareTo(arg);
-            if(compare < 0){
-                //if currentword is before arg in index
-                lowerbound = binpointer;
-                binpointer = lowerbound + (upperbound - lowerbound)/2;
-            }else if(compare > 0){
-                //if currentword is after arg in index
-                upperbound = binpointer;
-                binpointer = lowerbound + (upperbound - lowerbound)/2;
-            }else{
-                foundmatch = true;
-                break;
+                //If the binary pointer is the same as the last it means it is stuck
+                if(prevbinpointer == binpointer){
+                    String tryword = null;
+                    while(indexfile.getFilePointer() < upperbound){
+                        binpointer = indexfile.getFilePointer();
+                        tryword = readTo(indexfile, ' '); //eat first word
+                        readTo(indexfile, '\n'); //eat whole line
+                        if(arg.equals(tryword)){
+                            foundmatch = true;
+                            break;
+                        }
+                    }
+                    break;
+                }
+                prevbinpointer = binpointer;
+
+                //Check the word to a space
+                binpointerWord = readTo(indexfile, ' ');
+                //if the word equals the argument
+                
+                int compare = binpointerWord.compareTo(arg);
+                if(compare < 0){
+                    //if currentword is before arg in index
+                    lowerbound = binpointer;
+                    binpointer = lowerbound + (upperbound - lowerbound)/2;
+                }else if(compare > 0){
+                    //if currentword is after arg in index
+                    upperbound = binpointer;
+                    binpointer = lowerbound + (upperbound - lowerbound)/2;
+                }else{
+                    foundmatch = true;
+                    break;
+                }
             }
         }
         System.out.println("Found word?: " + foundmatch);
@@ -166,14 +169,19 @@ public class Konkordans implements Serializable {
      *
      */
     static Long nextSubstringPos(String substring, Hashtable<String,Long> hashtable){
-        Long nextPos = Long.MAX_VALUE;
         Long firstPos = hashtable.get(substring);
+        Long nextPos = Long.MAX_VALUE;
         //Grab all the values
         Collection<Long> c = hashtable.values();
+        boolean foundbigger = false;
         for(Long l: c){ //Check which is the most adjacent bigger position
             if(l > firstPos && l < nextPos){
+                foundbigger = true;
                 nextPos = l;
             }
+        }
+        if(!foundbigger){
+            nextPos = -1l;
         }
         return nextPos;
     }
