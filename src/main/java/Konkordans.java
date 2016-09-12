@@ -35,7 +35,8 @@ public class Konkordans implements Serializable {
             return;
         }
 
-        RandomAccessFile indexfile = new RandomAccessFile("/var/tmp/ut", "r");
+//        RandomAccessFile indexfile = new RandomAccessFile("/var/tmp/ut", "r");
+        RandomAccessFile indexfile = new RandomAccessFile("index", "r");
 
 
         indexfile.seek(position);
@@ -195,6 +196,5 @@ public class Konkordans implements Serializable {
             sb.append(tempchar);
         }
         return sb.toString();
-
     }
 }

@@ -5,8 +5,6 @@ public class KonkordansBuilder implements Serializable {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-
-
         double start = System.currentTimeMillis();
         System.out.println("starting");
         RandomAccessFile randomAccessFile = new RandomAccessFile("/var/tmp/ut", "r");
