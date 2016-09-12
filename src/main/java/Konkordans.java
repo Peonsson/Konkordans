@@ -32,11 +32,11 @@ public class Konkordans implements Serializable {
         //Get position in indexfile
         Long position = latmanhash.get(substring);
         if(position == null){
+            System.out.println("Found 0 entries of that word");
             return;
         }
 
-//        RandomAccessFile indexfile = new RandomAccessFile("/var/tmp/ut", "r");
-        RandomAccessFile indexfile = new RandomAccessFile("index", "r");
+        RandomAccessFile indexfile = new RandomAccessFile("/var/tmp/ut", "r");
 
 
         indexfile.seek(position);
@@ -50,59 +50,56 @@ public class Konkordans implements Serializable {
 
 
         //Binary search for a position with the correct word
-        long upperbound = nextSubstringPos(substring, latmanhash);
+        long upperbound = nextSubstringPos(substring, latmanhash, indexfile);
         long lowerbound = position;
         long binpointer = lowerbound + (upperbound-lowerbound)/2 ;
         long prevbinpointer = -1l;
         String binpointerWord = null; //the word of line binpointer is at
         char tempchar = ' ';
         boolean foundmatch = false;
-        if(upperbound == -1){
+        //If there is no upper bound we just linear search until the word hits
+        while(upperbound != lowerbound){ //while the bounds are not the same
+            //position the cursor
+            indexfile.seek(binpointer);
+            while(indexfile.read() != '\n'){ //eats it
+                //cursor is placed one after bin pointer
+                indexfile.seek(indexfile.getFilePointer()-2); //cursor back 2 chars
+            }
+            //cursor will be on first char on line
+            binpointer = indexfile.getFilePointer();
 
-        }else{
-            while(upperbound != lowerbound){ //while the bounds are not the same
-                //position the cursor
-                indexfile.seek(binpointer);
-                while(indexfile.read() != '\n'){ //eats it
-                    //cursor is placed one after bin pointer
-                    indexfile.seek(indexfile.getFilePointer()-2); //cursor back 2 chars
-                }
-                //cursor will be on first char on line
-                binpointer = indexfile.getFilePointer();
-
-                //If the binary pointer is the same as the last it means it is stuck
-                if(prevbinpointer == binpointer){
-                    String tryword = null;
-                    while(indexfile.getFilePointer() < upperbound){
-                        binpointer = indexfile.getFilePointer();
-                        tryword = readTo(indexfile, ' '); //eat first word
-                        readTo(indexfile, '\n'); //eat whole line
-                        if(arg.equals(tryword)){
-                            foundmatch = true;
-                            break;
-                        }
+            //If the binary pointer is the same as the last it means it is stuck
+            if(prevbinpointer == binpointer){
+                String tryword = null;
+                while(indexfile.getFilePointer() < upperbound){
+                    binpointer = indexfile.getFilePointer();
+                    tryword = readTo(indexfile, ' '); //eat first word
+                    if(arg.equals(tryword)){
+                        foundmatch = true;
+                        break;
                     }
-                    break;
+                    readTo(indexfile, '\n'); //eat whole line
                 }
-                prevbinpointer = binpointer;
+                break;
+            }
+            prevbinpointer = binpointer;
 
-                //Check the word to a space
-                binpointerWord = readTo(indexfile, ' ');
-                //if the word equals the argument
-                
-                int compare = binpointerWord.compareTo(arg);
-                if(compare < 0){
-                    //if currentword is before arg in index
-                    lowerbound = binpointer;
-                    binpointer = lowerbound + (upperbound - lowerbound)/2;
-                }else if(compare > 0){
-                    //if currentword is after arg in index
-                    upperbound = binpointer;
-                    binpointer = lowerbound + (upperbound - lowerbound)/2;
-                }else{
-                    foundmatch = true;
-                    break;
-                }
+            //Check the word to a space
+            binpointerWord = readTo(indexfile, ' ');
+            //if the word equals the argument
+            
+            int compare = binpointerWord.compareTo(arg);
+            if(compare < 0){
+                //if currentword is before arg in index
+                lowerbound = binpointer;
+                binpointer = lowerbound + (upperbound - lowerbound)/2;
+            }else if(compare > 0){
+                //if currentword is after arg in index
+                upperbound = binpointer;
+                binpointer = lowerbound + (upperbound - lowerbound)/2;
+            }else{
+                foundmatch = true;
+                break;
             }
         }
         System.out.println("Found word?: " + foundmatch);
@@ -169,7 +166,8 @@ public class Konkordans implements Serializable {
      * Checks which of the next positions exists in the hashtable
      *
      */
-    static Long nextSubstringPos(String substring, Hashtable<String,Long> hashtable){
+    static Long nextSubstringPos(String substring, Hashtable<String,Long> hashtable,
+            RandomAccessFile indexfile) throws IOException{
         Long firstPos = hashtable.get(substring);
         Long nextPos = Long.MAX_VALUE;
         //Grab all the values
@@ -182,19 +180,29 @@ public class Konkordans implements Serializable {
             }
         }
         if(!foundbigger){
-            nextPos = -1l;
+            indexfile.seek(indexfile.length()-1);
+            while(indexfile.read() != '\n'){ //eats it
+                //cursor is placed one after bin pointer
+                indexfile.seek(indexfile.getFilePointer()-2); //cursor back 2 chars
+            }
+            nextPos = indexfile.getFilePointer();
         }
         return nextPos;
     }
 
 
-    static String readTo(RandomAccessFile indexfile, char delim) throws IOException{
+    static String readTo(RandomAccessFile indexfile, char delim) {
         StringBuilder sb = new StringBuilder(10);
         sb.setLength(0);
         char tempchar = 'a';
-        while((tempchar = (char) indexfile.read()) != delim){
-            sb.append(tempchar);
+        try{
+            while((tempchar = (char) indexfile.read()) != delim ){
+                sb.append(tempchar);
+            }
+        }catch(IOException e){
+            return sb.toString();
         }
         return sb.toString();
+
     }
 }
