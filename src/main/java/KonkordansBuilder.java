@@ -7,9 +7,12 @@ public class KonkordansBuilder implements Serializable {
 
         double start = System.currentTimeMillis();
         System.out.println("starting");
-        RandomAccessFile randomAccessFile = new RandomAccessFile("/var/tmp/ut", "r");
-        RandomAccessFile uniqueWords = new RandomAccessFile("uniqueWords", "rw");
-        RandomAccessFile indexFile = new RandomAccessFile("indexFile", "rw");
+        DataInputStream randomAccessFile = new DataInputStream(new BufferedInputStream(
+                    new FileInputStream("/var/tmp/ut")));
+        DataOutputStream uniqueWords = new DataOutputStream(new BufferedOutputStream(
+                    new FileOutputStream("uniqueWords")));
+        DataOutputStream indexFile = new DataOutputStream(new BufferedOutputStream(
+                    new FileOutputStream("indexFile")));
 
         //Three word
         String threeCharWord;
@@ -20,15 +23,16 @@ public class KonkordansBuilder implements Serializable {
         String fullWord = null;
         String prevFull = null;
         long indexposition = 0;
+        long wordposition = 0;
 
         Hashtable<String, Long> numbers = new Hashtable<>(12000);
         StringBuffer sb = new StringBuffer();
         String line = "init";
         while (line != null) {
 
-            position = randomAccessFile.getFilePointer();
             if ((line = randomAccessFile.readLine()) == null)
                 break;
+            position+= line.length() + 1;
 
             //adding to new indexfile
             String[] lineWords = line.split(" ");
@@ -38,33 +42,41 @@ public class KonkordansBuilder implements Serializable {
                 //in the indexfile
                 if(prevFull!=null){
                     indexFile.writeByte((byte) '\n');
+                    indexposition++;
                 }
                 //Write word in uniquewords
                 int length = fullWord.length();
                 char[] charArray = fullWord.toCharArray();
                 for(int i = 0; i < length; i++){
                     uniqueWords.writeByte((byte) charArray[i]);
+                    wordposition++;
                 }
                 uniqueWords.writeByte((byte) ' ');
+                wordposition++;
 
                 //Write index to indexfile in uniqueWords
-                charArray = Long.toString(indexFile.getFilePointer()).toCharArray();
+                charArray = Long.toString(indexposition).toCharArray();
                 for(int i = 0; i < charArray.length; i++){
                     uniqueWords.writeByte((byte) charArray[i]);
+                    wordposition++;
                 }
                 uniqueWords.writeByte((byte) '\n');
+                wordposition++;
 
                 //Write this index in indexfile
                 charArray = lineWords[1].toCharArray();
                 for(int i = 0; i < charArray.length; i++){
                     indexFile.writeByte((byte) charArray[i]);
+                    indexposition++;
                 }
             }else{
                 //Write the korpus index in indexFile
                 char[] charArray = lineWords[1].toCharArray();
                 indexFile.writeByte((byte) ' ');
+                indexposition++;
                 for(int i = 0; i < charArray.length; i++){
                     indexFile.writeByte((byte) charArray[i]);
+                    indexposition++;
                 }
             }
             prevFull = fullWord;
@@ -85,6 +97,8 @@ public class KonkordansBuilder implements Serializable {
             numbers.put(threeCharWord, position);
         }
 
+        uniqueWords.close();
+        indexFile.close();
         System.out.println("numbers size: " + numbers.size());
         System.out.println((System.currentTimeMillis() - start) / 1000);
         randomAccessFile.close();
