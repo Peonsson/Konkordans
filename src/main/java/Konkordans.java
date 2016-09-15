@@ -105,6 +105,11 @@ public class Konkordans implements Serializable {
                 break;
             }
         }
+
+        if(!foundmatch) {
+            System.out.println("Found " + 0 + " entries of " + arg);
+            return;
+        }
 //        System.out.println("Found word?: " + foundmatch);
         uniqueWords.seek(binpointer);
 //        System.out.println(binpointerWord);
@@ -114,14 +119,14 @@ public class Konkordans implements Serializable {
         RandomAccessFile uniqueWordsIndex = new RandomAccessFile("indexFile", "r");
         RandomAccessFile korpus = new RandomAccessFile("korpus", "r");
         uniqueWordsIndex.seek(Long.parseLong(uniqueWordStrings[1]));
-        byte c;
+        char c;
         StringBuffer sb = new StringBuffer();
         long korpusPos;
         ArrayList<Long> korpusIndexList = new ArrayList<>(400000);
 
         while (true) {
             try {
-                c = uniqueWordsIndex.readByte();
+                c = (char) uniqueWordsIndex.readByte();
             } catch (EOFException e) {
                 korpusPos = Long.parseLong(sb.toString());
                 korpusIndexList.add(korpusPos);
@@ -136,7 +141,10 @@ public class Konkordans implements Serializable {
                 korpusIndexList.add(korpusPos);
                 sb.setLength(0);
             }
-            sb.append(c);
+
+            if(c != ' ')
+                sb.append(c);
+//            System.out.println(sb);
         }
 
         System.out.println("Found " + korpusIndexList.size() + " entries of " + arg);
@@ -153,8 +161,14 @@ public class Konkordans implements Serializable {
             byte[] byteholder = new byte[bytestoread];
 
             for (Long l : korpusIndexList) {
-                korpus.seek(l - 30);
-                System.out.println(korpus.getFilePointer());
+                if(l < 30) {
+                    korpus.seek(0);
+                } else if (l + arg.length() + 30 > korpus.length() ) {
+                    korpus.seek(korpus.length() - bytestoread);
+                } else {
+                    korpus.seek(l - 30);
+                }
+
                 korpus.readFully(byteholder, 0, bytestoread);
                 for (int j = 0; j < byteholder.length; j++) {
                     if (byteholder[j] == '\n') {
