@@ -7,12 +7,10 @@ public class KonkordansBuilder implements Serializable {
 
         double start = System.currentTimeMillis();
         System.out.println("starting");
-        DataInputStream ut = new DataInputStream(new BufferedInputStream(
-                    new FileInputStream("/var/tmp/ut")));
-        DataOutputStream uniqueWords = new DataOutputStream(new BufferedOutputStream(
-                    new FileOutputStream("uniqueWords")));
-        DataOutputStream indexFile = new DataOutputStream(new BufferedOutputStream(
-                    new FileOutputStream("indexFile")));
+//        DataInputStream ut = new DataInputStream(new BufferedInputStream(new FileInputStream("/var/tmp/ut")));
+        DataInputStream ut = new DataInputStream(new BufferedInputStream(new FileInputStream("index")));
+        DataOutputStream uniqueWords = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("uniqueWords")));
+        DataOutputStream indexFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("indexFile")));
 
         //Three word
         String threeCharWord;
