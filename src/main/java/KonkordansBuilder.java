@@ -33,22 +33,22 @@ public class KonkordansBuilder implements Serializable {
             //Read the 
             if ((line = ut.readLine()) == null)
                 break;
-            position+= line.length() + 1;
+            position += line.length() + 1;
 
             //adding to new indexfile
             String[] lineWords = line.split(" ");
             fullWord = lineWords[0];
-            if(!fullWord.equals(prevFull)){
+            if (!fullWord.equals(prevFull)) {
                 //if not the first word then cut the line when new word begins
                 //in the indexfile
-                if(prevFull!=null){
+                if (prevFull != null) {
                     indexFile.writeByte((byte) '\n');
                     indexposition++;
                 }
                 //Write word in uniquewords
                 int length = fullWord.length();
                 char[] charArray = fullWord.toCharArray();
-                for(int i = 0; i < length; i++){
+                for (int i = 0; i < length; i++) {
                     uniqueWords.writeByte((byte) charArray[i]);
                     wordfileposition++;
                 }
@@ -57,7 +57,7 @@ public class KonkordansBuilder implements Serializable {
 
                 //Write index to indexfile in uniqueWords
                 charArray = Long.toString(indexposition).toCharArray();
-                for(int i = 0; i < charArray.length; i++){
+                for (int i = 0; i < charArray.length; i++) {
                     uniqueWords.writeByte((byte) charArray[i]);
                     wordfileposition++;
                 }
@@ -66,16 +66,16 @@ public class KonkordansBuilder implements Serializable {
 
                 //Write this index in indexfile
                 charArray = lineWords[1].toCharArray();
-                for(int i = 0; i < charArray.length; i++){
+                for (int i = 0; i < charArray.length; i++) {
                     indexFile.writeByte((byte) charArray[i]);
                     indexposition++;
                 }
-            }else{
+            } else {
                 //Write the korpus index in indexFile
                 char[] charArray = lineWords[1].toCharArray();
                 indexFile.writeByte((byte) ' ');
                 indexposition++;
-                for(int i = 0; i < charArray.length; i++){
+                for (int i = 0; i < charArray.length; i++) {
                     indexFile.writeByte((byte) charArray[i]);
                     indexposition++;
                 }
@@ -97,7 +97,7 @@ public class KonkordansBuilder implements Serializable {
             prevThree = threeCharWord;
             numbers.put(threeCharWord, hashposition);
         }
-        
+
         uniqueWords.close();
         indexFile.close();
         System.out.println("numbers size: " + numbers.size());

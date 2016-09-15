@@ -106,13 +106,11 @@ public class Konkordans implements Serializable {
             }
         }
 
-        if(!foundmatch) {
+        if (!foundmatch) {
             System.out.println("Found " + 0 + " entries of " + arg);
             return;
         }
-//        System.out.println("Found word?: " + foundmatch);
         uniqueWords.seek(binpointer);
-//        System.out.println(binpointerWord);
 
         String str = uniqueWords.readLine();
         String[] uniqueWordStrings = str.split(" ");
@@ -142,7 +140,7 @@ public class Konkordans implements Serializable {
                 sb.setLength(0);
             }
 
-            if(c != ' ')
+            if (c != ' ')
                 sb.append(c);
 //            System.out.println(sb);
         }
@@ -161,9 +159,9 @@ public class Konkordans implements Serializable {
             byte[] byteholder = new byte[bytestoread];
 
             for (Long l : korpusIndexList) {
-                if(l < 30) {
+                if (l < 30) {
                     korpus.seek(0);
-                } else if (l + arg.length() + 30 > korpus.length() ) {
+                } else if (l + arg.length() + 30 > korpus.length()) {
                     korpus.seek(korpus.length() - bytestoread);
                 } else {
                     korpus.seek(l - 30);
