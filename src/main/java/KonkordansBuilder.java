@@ -7,7 +7,7 @@ public class KonkordansBuilder implements Serializable {
 
         double start = System.currentTimeMillis();
         System.out.println("starting");
-        DataInputStream randomAccessFile = new DataInputStream(new BufferedInputStream(
+        DataInputStream ut = new DataInputStream(new BufferedInputStream(
                     new FileInputStream("/var/tmp/ut")));
         DataOutputStream uniqueWords = new DataOutputStream(new BufferedOutputStream(
                     new FileOutputStream("uniqueWords")));
@@ -22,15 +22,18 @@ public class KonkordansBuilder implements Serializable {
         //Full word
         String fullWord = null;
         String prevFull = null;
-        long indexposition = 0;
-        long wordposition = 0;
+        long indexposition = 0; //where the pointer in indexfile is
+        long wordfileposition = 0; //where the pointer in uniqueword is
+        long hashposition = 0; //where we should store the word in hashmap
 
         Hashtable<String, Long> numbers = new Hashtable<>(12000);
         StringBuffer sb = new StringBuffer();
         String line = "init";
         while (line != null) {
+            hashposition = wordfileposition;
 
-            if ((line = randomAccessFile.readLine()) == null)
+            //Read the 
+            if ((line = ut.readLine()) == null)
                 break;
             position+= line.length() + 1;
 
@@ -49,19 +52,19 @@ public class KonkordansBuilder implements Serializable {
                 char[] charArray = fullWord.toCharArray();
                 for(int i = 0; i < length; i++){
                     uniqueWords.writeByte((byte) charArray[i]);
-                    wordposition++;
+                    wordfileposition++;
                 }
                 uniqueWords.writeByte((byte) ' ');
-                wordposition++;
+                wordfileposition++;
 
                 //Write index to indexfile in uniqueWords
                 charArray = Long.toString(indexposition).toCharArray();
                 for(int i = 0; i < charArray.length; i++){
                     uniqueWords.writeByte((byte) charArray[i]);
-                    wordposition++;
+                    wordfileposition++;
                 }
                 uniqueWords.writeByte((byte) '\n');
-                wordposition++;
+                wordfileposition++;
 
                 //Write this index in indexfile
                 charArray = lineWords[1].toCharArray();
@@ -94,14 +97,14 @@ public class KonkordansBuilder implements Serializable {
                 continue;
 
             prevThree = threeCharWord;
-            numbers.put(threeCharWord, position);
+            numbers.put(threeCharWord, hashposition);
         }
-
+        
         uniqueWords.close();
         indexFile.close();
         System.out.println("numbers size: " + numbers.size());
         System.out.println((System.currentTimeMillis() - start) / 1000);
-        randomAccessFile.close();
+        ut.close();
         
 
         /*
@@ -112,6 +115,6 @@ public class KonkordansBuilder implements Serializable {
         out.writeObject(numbers);
         out.close();
         fileOut.close();
-        System.out.printf("saved hashtable in hashtable.dat");
+        System.out.printf("saved hashtable in hashtable.dat\n");
     }
 }

@@ -36,7 +36,7 @@ public class Konkordans implements Serializable {
             return;
         }
 
-        RandomAccessFile indexfile = new RandomAccessFile("/var/tmp/ut", "r");
+        RandomAccessFile indexfile = new RandomAccessFile("uniqueWords", "r");
 
 
         indexfile.seek(position);
