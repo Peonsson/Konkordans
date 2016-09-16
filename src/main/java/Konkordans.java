@@ -114,9 +114,11 @@ public class Konkordans implements Serializable {
 
         String str = uniqueWords.readLine();
         String[] uniqueWordStrings = str.split(" ");
-        RandomAccessFile uniqueWordsIndex = new RandomAccessFile("indexFile", "r");
-        RandomAccessFile korpus = new RandomAccessFile("korpus", "r");
-        uniqueWordsIndex.seek(Long.parseLong(uniqueWordStrings[1]));
+        //RandomAccessFile uniqueWordsIndex = new RandomAccessFile("indexFile", "r");
+        DataInputStream  uniqueWordsIndex = new DataInputStream(new BufferedInputStream(new FileInputStream("indexFile"), 1000));
+        RandomAccessFile korpus = new RandomAccessFile("/info/adk16/labb1/korpus", "r");
+        //uniqueWordsIndex.seek(Long.parseLong(uniqueWordStrings[1]));
+        uniqueWordsIndex.skip(Long.parseLong(uniqueWordStrings[1]));
         char c;
         StringBuffer sb = new StringBuffer();
         long korpusPos;
